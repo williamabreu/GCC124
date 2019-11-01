@@ -12,7 +12,7 @@ Line::Line(const Point& p0, const Point& p1)
 //           para t = 0.5, retorna o ponto no meio do segmento.
 Point Line::Coordinates(double t) const
 {
-    #error Line::Coordinates não foi implementada.
+    // NOT IMPLEMENTED YET!
 }
 
 void Line::Read(const string& prompt)

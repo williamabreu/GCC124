@@ -22,7 +22,7 @@ void ClipRectangle::Set(double xmin, double xmax, double ymin, double ymax)
 // A linha alocada aqui será desalocada na função CleanUp().
 Line* ClipRectangle::Clip(const Line& l)
 {
-    #error ClipRectangle::Clip não foi implementada.
+    
 }
 
 void ClipRectangle::Read(const string& prompt)

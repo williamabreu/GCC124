@@ -34,8 +34,10 @@ void OnClick(int button, int state, int x, int y)
         static Point p1;
         static int clickCount = 0;
         ++clickCount;
-        if (clickCount % 2 == 1)
+        if (clickCount % 2 == 1) 
+        {
             p0 = WorldCoordinates(x, y);
+        }
         else
         {
             p1 = WorldCoordinates(x, y);
@@ -46,6 +48,7 @@ void OnClick(int button, int state, int x, int y)
                 Line* clippedLinePtr = clipRectangle.Clip(*linePtr);
                 if (clippedLinePtr)
                     clippedLinePtrVec.push_back(clippedLinePtr);
+                cout << ">> nova linha <<" << endl;
             }
             else
             {   // usuario terminou de definir o retangulo de recorte
@@ -63,6 +66,7 @@ void OnClick(int button, int state, int x, int y)
                     else
                         clipRectangle.Set(p1.mX, p0.mX, p1.mY, p0.mY);
                 }
+                cout << "CRIADO O RETANGULO DE RECORTE" << endl;
             }
             glutPostRedisplay();
         }
