@@ -18,6 +18,7 @@ class ClipRectangle
         double XMax() { return mXmax; }
         double YMin() { return mYmin; }
         double YMax() { return mYmax; }
+        unsigned int encode(double x, double y);
 
     private:
         bool Positive(double n) { return n > 0; }
