@@ -44,10 +44,10 @@ void OnClick(int button, int state, int x, int y)
             if (clipRectangle.Initialized())
             {
                 Line* linePtr = new Line(p0, p1);
-                linePtrVec.push_back(linePtr);
-                Line* clippedLinePtr = clipRectangle.Clip(*linePtr);
+                // linePtrVec.push_back(linePtr);
+                Line* clippedLinePtr = clipRectangle.Clip(*linePtr); // <-- Aqui faz o recorte, acho.
                 if (clippedLinePtr)
-                    clippedLinePtrVec.push_back(clippedLinePtr);
+                   clippedLinePtrVec.push_back(clippedLinePtr);
                 cout << ">> nova linha <<" << endl;
             }
             else
