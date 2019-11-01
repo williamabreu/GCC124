@@ -1,0 +1,2 @@
+- De branco sai a linha original
+- De verde sai a linha recortada
