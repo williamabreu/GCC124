@@ -25,6 +25,47 @@ unsigned int ClipRectangle::encode(double x, double y)
     else if (x < mXmin) bin |= 0b0001;
     if      (y > mYmax) bin |= 0b1000;
     else if (y < mYmin) bin |= 0b0100;
+
+    // Para testar a região:
+    // Testado e funcionando.
+    // switch (bin)
+    // {
+    //     case 0b1001:
+    //         cout << "1001" << endl;
+    //         break;
+        
+    //     case 0b1000:
+    //         cout << "1000" << endl;
+    //         break;
+        
+    //     case 0b1010:
+    //         cout << "1010" << endl;
+    //         break;
+        
+    //     case 0b0001:
+    //         cout << "0001" << endl;
+    //         break;
+        
+    //     case 0b0010:
+    //         cout << "0010" << endl;
+    //         break;
+        
+    //     case 0b0101:
+    //         cout << "0101" << endl;
+    //         break;
+        
+    //     case 0b0100:
+    //         cout << "0100" << endl;
+    //         break;
+
+    //     case 0b0110:
+    //         cout << "0110" << endl;
+    //         break;
+
+    //     case 0b0000:
+    //         cout << "0000" << endl;
+    //         break;
+    // }
     
     return bin;
 }
@@ -42,11 +83,16 @@ Line* ClipRectangle::Clip(const Line& l)
         y1 = l.mP0.mY, 
         y2 = l.mP1.mY;
     
-    if (x1 > mXmax)
+    unsigned int encodeP1 = encode(x1, y1);
+    unsigned int encodeP2 = encode(x2, y2);
+
+    unsigned int bitwiseAnd = encodeP1 & encodeP2;
+
+    if (encodeP1 != encodeP2 and bitwiseAnd == 0) 
     {
-        x1 = mXmax;
+        // calcula inteseções, se for diferente de zero é pq está completamente fora do recorte.
     }
-    
+
     // l.mP0.mX, l.mP1
     // mXmin
     // mXmax
