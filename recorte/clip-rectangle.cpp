@@ -51,17 +51,16 @@ Line* ClipRectangle::Clip(const Line& l)
     unsigned int outcode0 = encode(x0, y0);
     unsigned int outcode1 = encode(x1, y1);
 
-	bool accept = false;
-
 	while (true) {
 		if (!(outcode0 | outcode1)) {
 			// bitwise OR is 0: both points inside window; trivially accept and exit loop
-			accept = true;
-			break;
+			Point P0(x0, y0), P1(x1, y1);
+            Line* clippedLine = new Line(P0, P1);
+            return clippedLine;
 		} else if (outcode0 & outcode1) {
 			// bitwise AND is not 0: both points share an outside zone (LEFT, RIGHT, TOP,
 			// or BOTTOM), so both must be outside window; exit loop (accept is false)
-			break;
+			return NULL;
 		} else {
 			// failed both tests, so calculate the line segment to clip
 			// from an outside point to an intersection with clip edge
@@ -104,16 +103,6 @@ Line* ClipRectangle::Clip(const Line& l)
 			}
 		}
 	}
-	if (accept) {
-		// Following functions are left for implementation by user based on
-		// their platform (OpenGL/graphics.h etc.)
-        Point P0(x0, y0), P1(x1, y1);
-        Line* clippedLine = new Line(P0, P1);
-        return clippedLine;
-	}
-    else {
-        return NULL;
-    }
 }
 
 void ClipRectangle::Read(const string& prompt)
