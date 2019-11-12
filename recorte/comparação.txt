@@ -1,0 +1,198 @@
+.                       PARAMETRICO COHEN-SUTHERLAND
+=====================================================
+clip-rectangle.cpp      #2          #5
+clip-rectangle.h        inalterado  #4
+line.cpp                #1          #3
+line.h                  inalterado  inalterado
+Makefile                inalterado  inalterado
+openGL.cpp              inalterado  inalterado
+point.cpp               inalterado  inalterado
+point.h                 inalterado  inalterado
+
+#1 ===
+Point Line::Coordinates(double t) const
+{
+    return mP0 + (mP1 - mP0) * t;
+}
+=== #1
+
+#2 ===
+Line* ClipRectangle::Clip(const Line& l)
+{
+    // t = Ni * (P0 - PLi) / -Ni * D
+    // Se denominador == 0, entao l é paralelo ao lado de recorte
+    // Se denominador == 0 e numeradores > 0, entao l está fora da area de recorte
+    // Se denominador < 0, entao l está potencialmente saindo
+    
+    // inicializa inicio e fim
+    double inicio = 0;
+    double fim = 1;
+
+    // calcula os 4 numeradores
+    double numeradores[4] = {
+                             this->mXmin - l.mP0.mX, 
+                             l.mP0.mY - this->mYmax, 
+                             l.mP0.mX - this->mXmax, 
+                             this->mYmin - l.mP0.mY
+                            };
+
+    // calcula os 4 denominadores
+    double denominadores[4] = {
+                               l.mP1.mX - l.mP0.mX, 
+                               l.mP0.mY - l.mP1.mY, 
+                               l.mP0.mX - l.mP1.mX, 
+                               l.mP1.mY - l.mP0.mY
+                            };
+
+
+    for(int i = 0; i < 4; i++) {
+        // se for paralelo e o numerador > 0, esta fora
+        if(denominadores[i] == 0.0) {
+            if(numeradores[i] > 0) {
+                return NULL;
+            }
+        } else {
+
+            double t = numeradores[i] / denominadores[i];
+
+            // potencialmente saindo
+            if(denominadores[i] < 0) {
+                // se esta saindo antes de entrar, esta fora
+                if(t < inicio) {
+                    return NULL;
+                }
+                // se esta saindo antes do fim do segmento, entao o menor valor é o fim
+                if(t < fim) {
+                    fim = t;
+                }
+            } else {
+                // potencialmente entrando
+
+                // se esta entrando antes de sair, esta fora
+                if(t > fim) {
+                    return NULL;
+                }
+                // se esta saindo antes do fim do segmento, entao o maior valor é o inicio
+                if(t > inicio) {
+                    inicio = t;
+                }
+            }
+        }
+    }
+
+    Point p0 = l.mP0;
+    // se o inicio foi recortado
+    if(inicio != 0) {
+        // calcula as novas coordenadas de inicio do segmento
+        p0 = l.Coordinates(inicio);
+    }
+    
+    Point p1 = l.mP1;
+    // se o fim foi recortado
+    if(fim != 1) {
+        // calcula as novas coordenadas de fim
+        p1 = l.Coordinates(fim);
+    }
+    
+    // retorna o novo segmento
+    return (new Line(p0, p1));
+}
+=== #2
+
+#3 ===
+Point Line::Coordinates(double t) const
+{
+    // NÃO PRECISA
+}
+=== #3
+
+#4 ===
+unsigned int encode(double x, double y);
+=== #4
+
+#5 ===
+#define INSIDE 0b0000
+#define LEFT   0b0001
+#define RIGHT  0b0010
+#define BOTTOM 0b0100
+#define TOP    0b1000
+
+unsigned int ClipRectangle::encode(double x, double y)
+{
+    unsigned int bin = 0b0000;
+
+    if      (x > mXmax) bin |= RIGHT;
+    else if (x < mXmin) bin |= LEFT;
+    if      (y > mYmax) bin |= TOP;
+    else if (y < mYmin) bin |= BOTTOM;
+
+    return bin;
+}
+
+Line* ClipRectangle::Clip(const Line& l)
+{
+    // NOT IMPLEMENTED YET!
+    // cout << *this << endl;
+    double 
+        x0 = l.mP0.mX, 
+        x1 = l.mP1.mX, 
+        y0 = l.mP0.mY, 
+        y1 = l.mP1.mY;
+    
+    unsigned int outcode0 = encode(x0, y0);
+    unsigned int outcode1 = encode(x1, y1);
+
+	while (true) {
+		if (!(outcode0 | outcode1)) {
+			// bitwise OR is 0: both points inside window; trivially accept and exit loop
+			Point P0(x0, y0), P1(x1, y1);
+            Line* clippedLine = new Line(P0, P1);
+            return clippedLine;
+		} else if (outcode0 & outcode1) {
+			// bitwise AND is not 0: both points share an outside zone (LEFT, RIGHT, TOP,
+			// or BOTTOM), so both must be outside window; exit loop (accept is false)
+			return NULL;
+		} else {
+			// failed both tests, so calculate the line segment to clip
+			// from an outside point to an intersection with clip edge
+			double x, y;
+
+			// At least one endpoint is outside the clip rectangle; pick it.
+			unsigned int outcodeOut = outcode0 ? outcode0 : outcode1;
+
+			// Now find the intersection point;
+			// use formulas:
+			//   slope = (y1 - y0) / (x1 - x0)
+			//   x = x0 + (1 / slope) * (ym - y0), where ym is ymin or ymax
+			//   y = y0 + slope * (xm - x0), where xm is xmin or xmax
+			// No need to worry about divide-by-zero because, in each case, the
+			// outcode bit being tested guarantees the denominator is non-zero
+			if (outcodeOut & TOP) {           // point is above the clip window
+				x = x0 + (x1 - x0) * (mYmax - y0) / (y1 - y0);
+				y = mYmax;
+			} else if (outcodeOut & BOTTOM) { // point is below the clip window
+				x = x0 + (x1 - x0) * (mYmin - y0) / (y1 - y0);
+				y = mYmin;
+			} else if (outcodeOut & RIGHT) {  // point is to the right of clip window
+				y = y0 + (y1 - y0) * (mXmax - x0) / (x1 - x0);
+				x = mXmax;
+			} else if (outcodeOut & LEFT) {   // point is to the left of clip window
+				y = y0 + (y1 - y0) * (mXmin - x0) / (x1 - x0);
+				x = mXmin;
+			}
+
+			// Now we move outside point to intersection point to clip
+			// and get ready for next pass.
+			if (outcodeOut == outcode0) {
+				x0 = x;
+				y0 = y;
+				outcode0 = encode(x0, y0);
+			} else {
+				x1 = x;
+				y1 = y;
+				outcode1 = encode(x1, y1);
+			}
+		}
+	}
+}
+=== #5
