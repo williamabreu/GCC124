@@ -1,0 +1,4 @@
+Todos os algoritmos estão em:
+-----------------------------
+
+> bigpixelcanvas.cpp
