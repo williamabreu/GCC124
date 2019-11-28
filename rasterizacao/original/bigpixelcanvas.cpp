@@ -92,7 +92,45 @@ void BigPixelCanvas::DrawLine(const wxPoint& p0, const wxPoint& p1, wxDC& dc)
 {
     // Aqui o codigo para desenhar uma linha.
     // Para desenhar um pixel, use "DrawPixel(x, y, dc)".
-    #warning BigPixelCanvas::DrawLine não foi implementado (necessário para a rasterização de segmentos de reta).
+
+    int x0 = p0.x;
+    int y0 = p0.y;
+    int x1 = p1.x;
+    int y1 = p1.y;
+
+    bool isSteep = (fabs(y1 - y0) > fabs(x1 - x0));
+
+    if (isSteep) {
+        swap(x0, y0);
+        swap(x1, y1);
+    }
+
+    if (x0 > x1) {
+        swap(x0, x1);
+        swap(y0, y1);
+    }
+
+    int dx = x1 - x0;
+    int dy = fabs(y1 - y0);
+    int error = dx >> 1;
+    int yIncrement = (y0 < y1) ? 1 : -1;
+    int y = y0;
+
+    for (int x = x0; x < x1; ++x) {
+        if (isSteep) {
+            DrawPixel(y, x, dc);
+        }
+        else {
+            DrawPixel(x, y, dc);
+        }
+
+        error -= dy;
+
+        if (error < 0) {
+            error += dx;
+            y += yIncrement;
+        }
+    }
 }
 
 void BigPixelCanvas::DrawCircle(wxPoint center, int radius)
