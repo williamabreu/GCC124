@@ -145,7 +145,41 @@ void BigPixelCanvas::DrawCircle(const wxPoint& center, int radius, wxDC& dc)
 {
     // Aqui o codigo para desenhar um circulo.
     // Para desenhar um pixel, use "DrawPixel(x, y, dc)".
-    #warning BigPixelCanvas::DrawCircle não foi implementado (necessário para rasterização de círculos).
+
+    int x0 = center.x;
+    int y0 = center.y;
+
+    DrawPixel(x0 + radius, y0,          dc);
+    DrawPixel(x0 - radius, y0,          dc);
+    DrawPixel(x0,          y0 + radius, dc);
+    DrawPixel(x0,          y0 - radius, dc);
+
+    int f = 1 - radius;
+    int dx = 0;
+    int dy = -(radius << 1);
+    int x = 0;
+    int y = radius;
+
+    while (x < y) {
+        if (f >= 0) {
+            --y;
+            dy += 2;
+            f += dy;
+        }
+        
+        ++x;
+        dx += 2;
+        f += dx + 1;
+
+        DrawPixel(x0 + x, y0 + y, dc);
+        DrawPixel(x0 - x, y0 + y, dc);
+        DrawPixel(x0 + x, y0 - y, dc);
+        DrawPixel(x0 - x, y0 - y, dc);
+        DrawPixel(x0 + y, y0 + x, dc);
+        DrawPixel(x0 - y, y0 + x, dc);
+        DrawPixel(x0 + y, y0 - x, dc);
+        DrawPixel(x0 - y, y0 - x, dc);
+    }
 }
 
 void BigPixelCanvas::DesenharTriangulo2D(const Triang2D& triangulo) {
